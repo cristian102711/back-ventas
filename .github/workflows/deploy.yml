@@ -25,3 +25,19 @@ jobs:
           context: .
           push: true
           tags: cristian102711/back-ventas:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: Desplegar en EC2 vía SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ${{ secrets.EC2_TARGET_DIR }}
+            docker compose pull back-ventas
+            docker compose up -d back-ventas
